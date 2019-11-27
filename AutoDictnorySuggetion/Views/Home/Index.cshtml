@@ -1,0 +1,219 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+
+}
+
+
+<div id="remote">
+
+    <label>Enter Searching Word here</label>
+    <input id="datan" class="typeahead" type="text" placeholder="Enter Searcing Word Here" onkeypress="GetDataFromWebServices(); GetDatafromDB();">
+</div>
+<br/><br />
+
+
+     <table>
+         <thead>
+             <tr>
+                 <th>Data Recieved From WebServices</th>
+                 <th>Data Recieved From Database</th>
+             </tr>
+         </thead>
+         <tbody>
+             <tr  style="padding:10px">
+                 <td><textarea id="WebData1" rows="50" cols="30" readonly></textarea></td>
+                 <td><textarea id="Datbase" rows="50" cols="30" readonly></textarea></td>
+             </tr>
+             
+         </tbody>
+         <tfoot>
+          
+         </tfoot>
+     </table>
+
+
+@section scripts
+{
+    <script>
+        function onDataRecieved(data, status, xhr) {
+               // alert(data);
+            // $('#eee').clear();
+            $('#WebData1').empty();
+                     
+            data.map(function (text) {
+                if (text != "") {
+
+                    $("#WebData1").append('\n' + text);
+                    
+
+                }
+
+                //  alert(text);
+            });
+        
+
+        }
+
+        function onError(xhr, status, error) {
+          // alert(data);
+            $('#WebData1').empty();
+            console.log(data);
+            console.log(status);
+            console.log(error);
+        }
+
+        function GetDataFromWebServices() {
+
+            var serchdata = $('#datan').val();
+            if (serchdata != "") {
+                var request = {
+
+                    //  url: 'https://services.lingapps.dk/misc/getPredictions' + '?locale=en-GB&text=cat
+                    url: 'https://services.lingapps.dk/misc/getPredictions?locale=en-GB&text={CODE}'
+                        .replace('{CODE}', serchdata),
+                    type: 'GET',
+                    //beforeSend: function (xhr) {
+                    //    xhr.setRequestHeader('Authorization', 'Bearer MjAxOS0xMS0wNg==.ZDg4NjgzQHVyaGVuLmNvbQ==.YjY5YmU2MWYwMDA4MjRmNDU5ZDg4YTRmMzA5NDk4ZDY=');
+                    //},
+                    success: onDataRecieved,
+                    error: onError,
+                    headers: {
+                        Accept: 'application/json',
+                        Authorization: 'Bearer MjAxOS0xMS0wNg==.ZDg4NjgzQHVyaGVuLmNvbQ==.YjY5YmU2MWYwMDA4MjRmNDU5ZDg4YTRmMzA5NDk4ZDY='
+                    }
+                };
+                $.ajax(request);
+            }
+
+
+        }
+
+        function onDataRecievedDB(data, status, xhr) {
+            // alert(data);
+            // $('#eee').clear();
+            $('#Datbase').empty();
+
+            data.map(function (text) {
+                if (text != "") {
+
+                   
+                    $("#Datbase").append('\n' + text);
+
+                }
+
+                //  alert(text);
+            });
+
+
+        }
+
+        function onDBError(xhr, status, error) {
+            // alert(data);
+            $('#Datbase').empty();
+            console.log(data);
+            console.log(status);
+            console.log(error);
+        }
+
+
+
+        function GetDatafromDB() {
+            var serchdata = $('#datan').val();
+                    if (serchdata != "") {
+                        var request = {
+
+                            //  url: 'https://services.lingapps.dk/misc/getPredictions' + '?locale=en-GB&text=cat
+                            url: "@(Url.Action("Autocomplete", "Home"))",
+                              //  .replace('{CODE}', serchdata),
+                            data: { "term": serchdata },
+                            type: 'GET',
+                            
+                            success: onDataRecievedDB,
+                            error: onDBError,
+                         
+                        };
+                        $.ajax(request);
+                    
+                                }
+
+        }
+
+      
+
+
+
+
+         @*$(document).ready(
+            function () {
+                $("#datan").keypress(function () {
+                    var serchdata = $('#datan').val();
+                    if (serchdata != "") {
+                        var request = {
+
+                            //  url: 'https://services.lingapps.dk/misc/getPredictions' + '?locale=en-GB&text=cat
+                            url: 'https://services.lingapps.dk/misc/getPredictions?locale=en-GB&text={CODE}'
+                                .replace('{CODE}', serchdata),
+                            type: 'GET',
+                            //beforeSend: function (xhr) {
+                            //    xhr.setRequestHeader('Authorization', 'Bearer MjAxOS0xMS0wNg==.ZDg4NjgzQHVyaGVuLmNvbQ==.YjY5YmU2MWYwMDA4MjRmNDU5ZDg4YTRmMzA5NDk4ZDY=');
+                            //},
+                            success: onDataRecieved,
+                            error: onError,
+                            headers: {
+                                Accept: 'application/json',
+                                Authorization: 'Bearer MjAxOS0xMS0wNg==.ZDg4NjgzQHVyaGVuLmNvbQ==.YjY5YmU2MWYwMDA4MjRmNDU5ZDg4YTRmMzA5NDk4ZDY='
+                            }
+                        };
+                        $.ajax(request);
+                    }
+
+
+
+                });//keypress end
+                $("#PassId").keypress(function () {
+                    var serchdata = $('#PassId').val();
+                    if (serchdata != "") {
+                        var request = {
+
+                            //  url: 'https://services.lingapps.dk/misc/getPredictions' + '?locale=en-GB&text=cat
+                            url: "@(Url.Action("Autocomplete", "Home"))",
+                              //  .replace('{CODE}', serchdata),
+                            data: { "term": serchdata },
+                            type: 'GET',
+                            
+                            success: onDataRecieved,
+                            error: onError,
+                         
+                        };
+                        $.ajax(request);
+                    
+                                }
+
+                });
+
+                @*$("#PassId").autocomplete({
+                                source: function (request, response) {
+                                    var customer = new Array();
+                                    $.ajax({
+                                        async: false,
+                                        cache: false,
+                                        type: "POST",
+                                        url: "@(Url.Action("Autocomplete", "Home"))",
+                                        data: { "term": request.term },
+                                        success: onDataRecieved
+                                        
+                                    });
+                                    response(customer);
+                                }
+
+                });
+
+
+
+            }); *@
+
+
+
+    </script>
+
+}
